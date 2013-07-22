@@ -144,7 +144,6 @@
 }
 
 - (void)updateSegmentsRects {
-//    [self.segmentWidths removeAllObjects];
 
     // If there's no frame set, calculate the width of the control based on the number of segments and their size
     if (CGRectIsEmpty(self.frame)) {
@@ -162,12 +161,17 @@
         self.segmentWidth = self.frame.size.width / self.sectionTitles.count;
         self.height = self.frame.size.height;
         
-        [self.segmentWidths removeAllObjects];
-        for (NSString *titleString in self.sectionTitles) {
-            CGFloat stringWidth = [titleString sizeWithFont:self.font].width + self.segmentEdgeInset.left + self.segmentEdgeInset.right;
-            self.segmentWidth = MAX(stringWidth, self.segmentWidth);
-            [self.segmentWidths addObject:[NSNumber numberWithFloat:stringWidth]];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.segmentWidths removeAllObjects];
+            for (NSString *titleString in self.sectionTitles) {
+                CGFloat stringWidth = [titleString sizeWithFont:self.font].width + self.segmentEdgeInset.left + self.segmentEdgeInset.right;
+                self.segmentWidth = MAX(stringWidth, self.segmentWidth);
+                [self.segmentWidths addObject:[NSNumber numberWithFloat:stringWidth]];
+            }
+            self.bounds = CGRectMake(0, 0, [self segmentTotalWidth], self.height);
+        });
+    
+
     }
 }
 
@@ -184,7 +188,7 @@
 {
     self.sectionTitles = titles;
     [self updateSegmentsRects];
-    NSLog(@"%@",[NSValue valueWithCGRect:self.frame]);
+    NSLog(@"aaaaaaa %@",[NSValue valueWithCGRect:self.frame]);
     [self setNeedsDisplay];
 }
 
